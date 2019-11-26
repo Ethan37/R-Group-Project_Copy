@@ -12,5 +12,6 @@ In this repo, you will find a copy of:
 2. A [README.md file](https://github.com/sta518/team-project-s01-blue/blob/master/README.md) 
 3. An [team-project.Rproj file](https://github.com/sta518/team-project-s01-blue/blob/master/team-project.Rproj)
 4. A [.gitignore file](https://github.com/sta518/team-project-s01-blue/blob/master/.gitignore)
+5. A [data file](https://github.com/sta518/team-project-s01-blue/tree/master/data)
 
 These files serve as templates/canvases for this taks. As work is done on the task, these files will change according to the instructions, with the final report and presentation being ready Thursday December 12th 2019. If today's date is at or beyond this point, you should be viewing the final version of this repository. Otherwise, the repository might still be under development. This final will specifically focus on the use of all of our knowledge of R to analyze our dataset of interest in a unique way.
