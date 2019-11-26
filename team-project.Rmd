@@ -23,7 +23,7 @@ GTOnePlatform <- video_game_sales %>%
   summarise(numplats = n()) %>% 
   filter(numplats>1)
 
-GTOnePlatform
+
 ```
 
 ```{r make-dataset}
@@ -31,5 +31,24 @@ GTMerge <- video_game_sales %>%
   filter(Platform %in% c("XB","X360","XOne","PS","PS2","PS3","PS4","PC")) %>% 
   right_join(GTOnePlatform, by = c("Name" = "Name"))
 
-GTMerge
+
 ```
+
+### Total sales of game predicted by type of game and developer
+
+```{r type-freq-check}
+by_genre <- video_game_sales %>% 
+  group_by(Genre) %>% 
+  summarise(Count = n())
+  ##filter(Count > 1)
+
+
+```
+
+
+
+
+
+
+
+
