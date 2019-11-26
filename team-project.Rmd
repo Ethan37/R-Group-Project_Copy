@@ -1,0 +1,35 @@
+---
+title: "Team_project"
+author: "S01-Blue"
+output: html_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+```
+
+```{r load-data}
+video_game_sales <- read.csv("data/Video_Games_Sales_as_at_22_Dec_2016.csv")
+
+glimpse(video_game_sales)
+```
+
+### What games are on more than one platform?
+
+```{r Plat-freq-check}
+GTOnePlatform <- video_game_sales %>% 
+  filter(Platform %in% c("XB","X360","XOne","PS","PS2","PS3","PS4","PC")) %>% 
+  group_by(Name) %>% 
+  summarise(numplats = n()) %>% 
+  filter(numplats>1)
+
+GTOnePlatform
+```
+
+```{r make-dataset}
+GTMerge <- video_game_sales %>% 
+  filter(Platform %in% c("XB","X360","XOne","PS","PS2","PS3","PS4","PC")) %>% 
+  right_join(GTOnePlatform, by = c("Name" = "Name"))
+
+GTMerge
+```
