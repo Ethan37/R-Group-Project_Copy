@@ -6,6 +6,7 @@ output: html_document
 
 ```{r load-packages, message=FALSE}
 library(tidyverse)
+library(gridExtra)
 ```
 
 ```{r load-data}
@@ -69,6 +70,78 @@ system_var <- xbox_playstation %>%
     Platform %in% c("PS", "PS2", "PS3", "PS4", "PSP", "PSV") ~ "PlayStation"
   ))
 
+test <- system_var %>%
+  select(Platform, System, Global_Sales) %>%
+  arrange(System)
+
+averages <- test %>%
+  group_by(System) %>%
+  summarise(n = n(), sum_sales = sum(Global_Sales), avg = mean(Global_Sales))
 ```
+
+
+```{r summary-stats}
+testing_data <- test %>%
+  select(System,Global_Sales)
+
+testing_data %>%
+  filter(System == "Xbox") %>%
+  summary()
+
+testing_data %>%
+  filter(System == "PlayStation") %>%
+  summary()
+```
+
+```{r plots}
+
+xbox <- tesing_data %>%
+  filter(System == "Xbox")
+
+playstation <- testing_data %>%
+  filter(System == "PlayStation")
+
+
+
+p1 <- ggplot(data = testing_data, mapping = aes(System, Global_Sales)) +
+  geom_boxplot() +
+  labs(title = "Box Plots of Global Sales", subtitle = "by System", y = "Global Sales")
+
+logp1 <- ggplot(data = testing_data, mapping = aes(System, Global_Sales)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  labs(title = "Box Plots of Global Sales", subtitle = "by System", y = "log(Global Sales)")
+
+p2 <- ggplot(data = xbox, mapping = aes(Global_Sales)) +
+  geom_histogram(stat = 'bin', binwidth = 0.1, na.rm = TRUE) +
+  xlim(0,10) +
+  labs(title = "Histogram of Global Sales", subtitle = "for Xbox", x= "Global Sales", y = "Count")
+
+p3 <- ggplot(data = playstation, mapping = aes(Global_Sales)) +
+  geom_histogram(stat = 'bin', binwidth = 0.1, na.rm = TRUE) +
+  xlim(0,10) +
+  labs(title = "Histogram of Global Sales", subtitle = "for PlayStation", x= "Global Sales", y = "Count")
+
+logp2 <- ggplot(data = xbox, mapping = aes(Global_Sales)) +
+  geom_histogram(stat = 'bin', binwidth = 0.1) +
+  scale_x_log10() +
+  labs(title = "Histogram of Global Sales", subtitle = "for Xbox", x= "log(Global Sales)", y = "Count")
+
+logp3 <- ggplot(data = playstation, mapping = aes(Global_Sales)) +
+  geom_histogram(stat = 'bin', binwidth = 0.1) +
+  scale_x_log10() +
+  labs(title = "Histogram of Global Sales", subtitle = "for PlayStation", x= "log(Global Sales)", y = "Count")
+
+
+grid.arrange(p1,logp1, nrow=1)
+grid.arrange(p2, logp2, nrow=1)
+grid.arrange(p3, logp3, nrow=1)
+```
+
+
+
+
+
+
 
 
