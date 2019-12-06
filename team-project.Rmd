@@ -45,7 +45,7 @@ by_publisher <- video_game_sales %>%
   group_by(Publisher) %>% 
   summarise(Count = n()) %>%
   arrange(desc(Count)) %>%
-  top_frac(.01)
+  top_frac(.05)
 
 by_publisher
 ```
@@ -58,7 +58,7 @@ by_genre <- PBMerge %>%
   group_by(Genre) %>% 
   summarise(Count = n()) %>%
   arrange(desc(Count)) %>%
-  top_frac(.5)
+  top_frac(.90)
 
 by_genre
 ```
@@ -67,8 +67,9 @@ by_genre
 PBGMerge <- PBMerge %>%
   right_join(by_genre, by = "Genre")
 
-summary(regsubsets(Global_Sales ~ factor(Genre) + factor(Publisher), data = PBGMerge))
+sales_by_genre_pub <- regsubsets(Global_Sales ~ factor(Genre) + factor(Publisher), data = PBGMerge)
 
+summary(sales_by_genre_pub)$adjr2
 ```
 
 ### Best time to release a game
