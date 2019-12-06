@@ -368,8 +368,10 @@ summary {
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(leaps)</code></pre>
 <pre class="r"><code>video_game_sales &lt;- read.csv(&quot;data/Video_Games_Sales_as_at_22_Dec_2016.csv&quot;)
+release_dates &lt;- read.csv(&quot;data/query (1).csv&quot;)
 
 glimpse(video_game_sales)</code></pre>
 <pre><code>## Observations: 16,719
@@ -390,6 +392,13 @@ glimpse(video_game_sales)</code></pre>
 ## $ User_Count      &lt;int&gt; 322, NA, 709, 192, NA, NA, 431, 129, 594, NA, NA, 464…
 ## $ Developer       &lt;fct&gt; Nintendo, , Nintendo, Nintendo, , , Nintendo, Nintend…
 ## $ Rating          &lt;fct&gt; E, , E, E, , , E, E, E, , , E, , E, E, E, M, M, , E, …</code></pre>
+<pre class="r"><code>glimpse(release_dates)</code></pre>
+<pre><code>## Observations: 63,408
+## Variables: 4
+## $ game          &lt;fct&gt; http://www.wikidata.org/entity/Q2374, http://www.wikida…
+## $ gameLabel     &lt;fct&gt; Civilization III, Civilization III, Civilization III, C…
+## $ releaseDate   &lt;fct&gt; 2001-10-30T00:00:00Z, 2001-10-30T00:00:00Z, 2006-10-25T…
+## $ platformLabel &lt;fct&gt; Microsoft Windows, macOS, Microsoft Windows, macOS, Mic…</code></pre>
 <div id="what-games-are-on-more-than-one-platform" class="section level3">
 <h3>What games are on more than one platform?</h3>
 <pre class="r"><code>GTOnePlatform &lt;- video_game_sales %&gt;% 
@@ -401,12 +410,139 @@ glimpse(video_game_sales)</code></pre>
   filter(Platform %in% c(&quot;XB&quot;,&quot;X360&quot;,&quot;XOne&quot;,&quot;PS&quot;,&quot;PS2&quot;,&quot;PS3&quot;,&quot;PS4&quot;,&quot;PC&quot;)) %&gt;% 
   right_join(GTOnePlatform, by = c(&quot;Name&quot; = &quot;Name&quot;))</code></pre>
 </div>
-<div id="total-sales-of-game-predicted-by-type-of-game-and-developer" class="section level3">
-<h3>Total sales of game predicted by type of game and developer</h3>
-<pre class="r"><code>by_genre &lt;- video_game_sales %&gt;% 
+<div id="total-sales-of-game-predicted-by-genre-of-game-and-publisher" class="section level3">
+<h3>Total sales of game predicted by genre of game and publisher</h3>
+<pre class="r"><code>by_publisher &lt;- video_game_sales %&gt;%
+  group_by(Publisher) %&gt;% 
+  summarise(Count = n()) %&gt;%
+  arrange(desc(Count)) %&gt;%
+  top_frac(.01)</code></pre>
+<pre><code>## Selecting by Count</code></pre>
+<pre class="r"><code>by_publisher</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   Publisher                    Count
+##   &lt;fct&gt;                        &lt;int&gt;
+## 1 Electronic Arts               1356
+## 2 Activision                     985
+## 3 Namco Bandai Games             939
+## 4 Ubisoft                        933
+## 5 Konami Digital Entertainment   834</code></pre>
+<pre class="r"><code>PBMerge &lt;- video_game_sales %&gt;%
+  right_join(by_publisher, by = &quot;Publisher&quot;)
+
+by_genre &lt;- PBMerge %&gt;%
   group_by(Genre) %&gt;% 
-  summarise(Count = n())
-  ##filter(Count &gt; 1)</code></pre>
+  summarise(Count = n()) %&gt;%
+  arrange(desc(Count)) %&gt;%
+  top_frac(.5)</code></pre>
+<pre><code>## Selecting by Count</code></pre>
+<pre class="r"><code>by_genre</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Genre      Count
+##   &lt;fct&gt;      &lt;int&gt;
+## 1 Sports      1108
+## 2 Action      1093
+## 3 Misc         482
+## 4 Shooter      476
+## 5 Simulation   374
+## 6 Racing       325</code></pre>
+<pre class="r"><code>PBGMerge &lt;- PBMerge %&gt;%
+  right_join(by_genre, by = &quot;Genre&quot;)
+
+summary(regsubsets(Global_Sales ~ factor(Genre) + factor(Publisher), data = PBGMerge))</code></pre>
+<pre><code>## Subset selection object
+## Call: regsubsets.formula(Global_Sales ~ factor(Genre) + factor(Publisher), 
+##     data = PBGMerge)
+## 9 Variables  (and intercept)
+##                                               Forced in Forced out
+## factor(Genre)Misc                                 FALSE      FALSE
+## factor(Genre)Racing                               FALSE      FALSE
+## factor(Genre)Shooter                              FALSE      FALSE
+## factor(Genre)Simulation                           FALSE      FALSE
+## factor(Genre)Sports                               FALSE      FALSE
+## factor(Publisher)Electronic Arts                  FALSE      FALSE
+## factor(Publisher)Konami Digital Entertainment     FALSE      FALSE
+## factor(Publisher)Namco Bandai Games               FALSE      FALSE
+## factor(Publisher)Ubisoft                          FALSE      FALSE
+## 1 subsets of each size up to 8
+## Selection Algorithm: exhaustive
+##          factor(Genre)Misc factor(Genre)Racing factor(Genre)Shooter
+## 1  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 2  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 3  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 4  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 5  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 6  ( 1 ) &quot; &quot;               &quot; &quot;                 &quot;*&quot;                 
+## 7  ( 1 ) &quot;*&quot;               &quot; &quot;                 &quot;*&quot;                 
+## 8  ( 1 ) &quot;*&quot;               &quot;*&quot;                 &quot;*&quot;                 
+##          factor(Genre)Simulation factor(Genre)Sports
+## 1  ( 1 ) &quot; &quot;                     &quot; &quot;                
+## 2  ( 1 ) &quot; &quot;                     &quot; &quot;                
+## 3  ( 1 ) &quot; &quot;                     &quot; &quot;                
+## 4  ( 1 ) &quot; &quot;                     &quot; &quot;                
+## 5  ( 1 ) &quot; &quot;                     &quot; &quot;                
+## 6  ( 1 ) &quot; &quot;                     &quot;*&quot;                
+## 7  ( 1 ) &quot; &quot;                     &quot;*&quot;                
+## 8  ( 1 ) &quot; &quot;                     &quot;*&quot;                
+##          factor(Publisher)Electronic Arts
+## 1  ( 1 ) &quot; &quot;                             
+## 2  ( 1 ) &quot;*&quot;                             
+## 3  ( 1 ) &quot; &quot;                             
+## 4  ( 1 ) &quot; &quot;                             
+## 5  ( 1 ) &quot;*&quot;                             
+## 6  ( 1 ) &quot;*&quot;                             
+## 7  ( 1 ) &quot;*&quot;                             
+## 8  ( 1 ) &quot;*&quot;                             
+##          factor(Publisher)Konami Digital Entertainment
+## 1  ( 1 ) &quot; &quot;                                          
+## 2  ( 1 ) &quot; &quot;                                          
+## 3  ( 1 ) &quot;*&quot;                                          
+## 4  ( 1 ) &quot;*&quot;                                          
+## 5  ( 1 ) &quot;*&quot;                                          
+## 6  ( 1 ) &quot;*&quot;                                          
+## 7  ( 1 ) &quot;*&quot;                                          
+## 8  ( 1 ) &quot;*&quot;                                          
+##          factor(Publisher)Namco Bandai Games factor(Publisher)Ubisoft
+## 1  ( 1 ) &quot; &quot;                                 &quot; &quot;                     
+## 2  ( 1 ) &quot; &quot;                                 &quot; &quot;                     
+## 3  ( 1 ) &quot;*&quot;                                 &quot; &quot;                     
+## 4  ( 1 ) &quot;*&quot;                                 &quot;*&quot;                     
+## 5  ( 1 ) &quot;*&quot;                                 &quot;*&quot;                     
+## 6  ( 1 ) &quot;*&quot;                                 &quot;*&quot;                     
+## 7  ( 1 ) &quot;*&quot;                                 &quot;*&quot;                     
+## 8  ( 1 ) &quot;*&quot;                                 &quot;*&quot;</code></pre>
+</div>
+<div id="best-time-to-release-a-game" class="section level3">
+<h3>Best time to release a game</h3>
+<pre class="r"><code>release_dates &lt;- release_dates %&gt;%
+  select(gameLabel, releaseDate, platformLabel) %&gt;%
+  mutate(releaseDate = str_replace_all(releaseDate, c(&quot;T00:00:00Z&quot; = &quot;&quot;)))%&gt;%
+  mutate(platformLabel = str_replace_all(platformLabel, c(&quot;Microsoft Windows&quot; = &quot;PC&quot;,
+                                                          &quot;PlayStation&quot; = &quot;PS&quot;,
+                                                          &quot;PlayStation 2&quot; = &quot;PS2&quot;,
+                                                          &quot;PlayStation 3&quot; = &quot;PS3&quot;,
+                                                          &quot;PlayStation 4&quot; = &quot;PS4&quot;,
+                                                          &quot;PlayStation Portable&quot; = &quot;PSP&quot;,
+                                                          &quot;PlayStation Vita&quot; = &quot;PSV&quot;,
+                                                          &quot;XBox&quot; = &quot;XB&quot;,
+                                                          &quot;Xbox One&quot; = &quot;XOne&quot;,
+                                                          &quot;Xbox 360&quot; = &quot;X360&quot;,
+                                                          &quot;Nintendo &quot; = &quot;&quot;,
+                                                          &quot;Super Entertainment System&quot; = &quot;SNES&quot;,
+                                                          &quot;Entertainment System&quot; = &quot;NES&quot;,
+                                                          &quot;GameCube&quot; = &quot;GC&quot;,
+                                                          &quot;Game Boy Advance&quot; = &quot;GBA&quot;,
+                                                          &quot;64&quot; = &quot;N64&quot;,
+                                                          &quot;Wii U&quot; = &quot;WiiU&quot;)))
+
+video_game_sales_release &lt;- video_game_sales %&gt;%
+  left_join(release_dates, by = c(&quot;Name&quot; = &quot;gameLabel&quot;, &quot;Platform&quot; = &quot;platformLabel&quot;))</code></pre>
+<pre><code>## Warning: Column `Name`/`gameLabel` joining factors with different levels,
+## coercing to character vector</code></pre>
+<pre><code>## Warning: Column `Platform`/`platformLabel` joining factor and character vector,
+## coercing into character vector</code></pre>
+<pre class="r"><code>video_game_sales_release &lt;- video_game_sales_release %&gt;%
+  filter(!is.na(releaseDate))</code></pre>
 </div>
 
 

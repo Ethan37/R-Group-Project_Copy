@@ -6,12 +6,16 @@ output: html_document
 
 ```{r load-packages, message=FALSE}
 library(tidyverse)
+library(leaps)
+library(lubridate)
 ```
 
 ```{r load-data}
 video_game_sales <- read.csv("data/Video_Games_Sales_as_at_22_Dec_2016.csv")
+release_dates <- read.csv("data/query (1).csv")
 
 glimpse(video_game_sales)
+glimpse(release_dates)
 ```
 
 ### What games are on more than one platform?
@@ -34,16 +38,91 @@ GTMerge <- video_game_sales %>%
 
 ```
 
-### Total sales of game predicted by type of game and developer
+### Total sales of game predicted by genre of game and publisher
 
-```{r type-freq-check}
-by_genre <- video_game_sales %>% 
+```{r publisher-freq-check}
+by_publisher <- video_game_sales %>%
+  group_by(Publisher) %>% 
+  summarise(Count = n()) %>%
+  arrange(desc(Count)) %>%
+  top_frac(.01)
+
+by_publisher
+```
+
+```{r genre-freq-check}
+PBMerge <- video_game_sales %>%
+  right_join(by_publisher, by = "Publisher")
+
+by_genre <- PBMerge %>%
   group_by(Genre) %>% 
-  summarise(Count = n())
-  ##filter(Count > 1)
+  summarise(Count = n()) %>%
+  arrange(desc(Count)) %>%
+  top_frac(.5)
 
+by_genre
+```
+
+```{r genre-publisher-dataset}
+PBGMerge <- PBMerge %>%
+  right_join(by_genre, by = "Genre")
+
+summary(regsubsets(Global_Sales ~ factor(Genre) + factor(Publisher), data = PBGMerge))
 
 ```
+
+### Best time to release a game
+
+```{r merging-release_date-data-set}
+release_dates <- release_dates %>%
+  select(gameLabel, releaseDate, platformLabel) %>%
+  mutate(releaseDate = str_replace_all(releaseDate, c("T00:00:00Z" = "")))%>%
+  mutate(platformLabel = str_replace_all(platformLabel, c("Microsoft Windows" = "PC",
+                                                          "PlayStation" = "PS",
+                                                          "PlayStation 2" = "PS2",
+                                                          "PlayStation 3" = "PS3",
+                                                          "PlayStation 4" = "PS4",
+                                                          "PlayStation Portable" = "PSP",
+                                                          "PlayStation Vita" = "PSV",
+                                                          "XBox" = "XB",
+                                                          "Xbox One" = "XOne",
+                                                          "Xbox 360" = "X360",
+                                                          "Nintendo " = "",
+                                                          "Super Entertainment System" = "SNES",
+                                                          "Entertainment System" = "NES",
+                                                          "GameCube" = "GC",
+                                                          "Game Boy Advance" = "GBA",
+                                                          "64" = "N64",
+                                                          "Wii U" = "WiiU")))
+
+video_game_sales_release <- video_game_sales %>%
+  left_join(release_dates, by = c("Name" = "gameLabel", "Platform" = "platformLabel")) %>%
+  filter(!is.na(releaseDate)) %>%
+  mutate(releaseDate = ymd(releaseDate)) %>%
+  filter(year(releaseDate) < 2020) %>%
+  select(-Year_of_Release) %>%
+  arrange(releaseDate) %>%
+  distinct(Name, Platform, Global_Sales, .keep_all = TRUE)
+
+# Can filter Year and shows sales by month
+video_game_sales_release %>%
+  filter(between(year(releaseDate), 1990, 2000)) %>%
+  group_by(month = month(releaseDate, label = TRUE)) %>%
+  summarise(avg_sales_per_month = median(Global_Sales)) %>%
+  ggplot(aes(x = month, y = avg_sales_per_month, fill = avg_sales_per_month)) +
+  geom_bar(stat = "identity") 
+
+# Can filter Month and shows by Year
+video_game_sales_release %>%
+  filter(between(month(releaseDate), 1, 12)) %>%
+  group_by(year = year(releaseDate)) %>%
+  summarise(avg_sales_per_year = median(Global_Sales)) %>% 
+  ggplot(aes(x = year, y = avg_sales_per_year, fill = avg_sales_per_year)) +
+  geom_bar(stat = "identity") 
+```
+
+
+
 
 
 
