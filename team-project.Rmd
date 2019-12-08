@@ -95,7 +95,7 @@ testing_data %>%
 
 ```{r plots}
 
-xbox <- tesing_data %>%
+xbox <- testing_data %>%
   filter(System == "Xbox")
 
 playstation <- testing_data %>%
@@ -139,6 +139,31 @@ grid.arrange(p3, logp3, nrow=1)
 ```
 
 
+```{r testing}
+xbox_summary <- xbox %>%
+  summarise(count = n(), mean = mean(Global_Sales), std = sd(Global_Sales))
+
+playstation_summary <- playstation %>%
+  summarise(count = n(), mean = mean(Global_Sales), std = sd(Global_Sales))
+
+testing_data %>%
+  count(System)
+
+xbox.test <- xbox %>%
+  select(Global_Sales)
+
+playstation.test <- playstation %>%
+  select(Global_Sales)
+
+data_vartest <- var.test(Global_Sales ~ System, data = testing_data)
+
+data_ttest <- t.test(xbox.test, playstation.test, alternative = "two.sided", var.equal = FALSE)
+
+data_vartest
+data_ttest
+```
+
+The t-test was significant at an alpha=0.05 confidence level. There is a significant difference of the means of the global sales for xbox and playstation consoles. The mean global sales of the xbox console was significantly higher than the mean global sales of the playstation console.
 
 
 
