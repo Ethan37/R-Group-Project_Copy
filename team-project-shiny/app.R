@@ -9,22 +9,34 @@ source("RDS-Creation-Script.R")
 # SHINY THEMES PACKAGE: 
 # http://rstudio.github.io/shinythemes/
 
+withConsoleRedirect <- function(containerId, expr) {
+    # Change type="output" to type="message" to catch stderr
+    # (messages, warnings, and errors) instead of stdout.
+    txt <- capture.output(results <- expr, type = "output")
+    if (length(txt) > 0) {
+        insertUI(paste0("#", containerId), where = "beforeEnd",
+                 ui = paste0(txt, "\n", collapse = "")
+        )
+    }
+    results
+}
 
-ui <- shinyUI(navbarPage("Video Game Sales Application", useShinyjs(),
+
+
+ui <- shinyUI(navbarPage("Video Game Sales Application", 
                          
                          
                          # Defining tabs to be used
                          #Introduction
-                         tabPanel("Introduction",
-                                  #includeMarkdown(""))
-                                  h4("Welcome to our Shiny application")
+                         tabPanel("Introduction"
                          ),
+                         
                          #Search Table Tab
                          tabPanel("Search Table", 
                                   DT::dataTableOutput("table")
                          ),
                          #Plots Tab
-                         tabPanel("Plots", 
+                         tabPanel("Plots", useShinyjs(),
                                   fluidRow(
                                       sidebarPanel(
                                           selectInput("xvariable",
@@ -63,8 +75,26 @@ ui <- shinyUI(navbarPage("Video Game Sales Application", useShinyjs(),
                                                       min = 1, max = 12, value = c(1, 12))
                                       ),
                                       mainPanel(plotOutput("timeplot")))
+                         ), #Closing Time plots panel
+                         
+                         #T Test Tab
+                         tabPanel("T-Test",
+                                  h3("Do games released on both Xbox and 
+                                     Playstation sell better on one console?"),
+                                  p("Null Hypothesis: The true mean sales of games released on Xbox and Playstation consoles is equal."),
+                                  p("Alternative Hypothesis: There is a difference in true mean sales of games released on Xbox and Playstation consoles."),
+                                  h4("Assumptions"),
+                                  p("Due to our dataset containing the sales data for all games released on Xbox and Playstation our sample is practically the"),
+                                  p("populations of Xbox and Playstation games. Our test will continue as planned."),
+                                  h4("The T-test"),
+                                  verbatimTextOutput("ttest"),
+                                  h4("Conclusion"),
+                                  p("A p-value of 0.03956 indicates there is strong evidence to reject the null hypothesis."),
+                                  p("There is a difference in true mean global sales of games released on Xbox and Playstation consoles. Based on the sample"),
+                                  p("means, Xbox has had higher mean global sales compared to Playstation for games which have been released on both consoles.")
                          )
-                         #Closing shinyUI
+                         
+#Closing shinyUI
 ))
 
 
@@ -148,5 +178,47 @@ server <- function(input, output) {
                  x = "Year")
         
     })
+    
+    #T-Test
+    xbox_playstation <- video_game_sales %>%
+        filter(Platform %in% "XOne" | 
+                   Platform %in% "XB" |
+                   Platform %in% "X360" |
+                   Platform %in% "PS" |
+                   Platform %in% "PS2" |
+                   Platform %in% "PS3" |
+                   Platform %in% "PS4" |
+                   Platform %in% "PSP" |
+                   Platform %in% "PSV"
+        )
+    xbox_summary <- xbox %>%
+        summarise(count = n(), mean = mean(Global_Sales), std = sd(Global_Sales))
+    playstation_summary <- playstation %>%
+        summarise(count = n(), mean = mean(Global_Sales), std = sd(Global_Sales))
+    system_var <- xbox_playstation %>%
+        mutate(System = case_when(
+            Platform %in% c("XOne", "XB", "X360") ~ "Xbox",
+            Platform %in% c("PS", "PS2", "PS3", "PS4", "PSP", "PSV") ~ "PlayStation"
+        ))
+    test <- system_var %>%
+        select(Platform, System, Global_Sales) %>%
+        arrange(System)
+    testing_data <- test %>%
+        select(System,Global_Sales)
+    xbox <- testing_data %>%
+        filter(System == "Xbox")
+    playstation <- testing_data %>%
+        filter(System == "PlayStation")
+    xbox.test <- xbox %>%
+        select(Global_Sales)
+    playstation.test <- playstation %>%
+        select(Global_Sales)
+    data_vartest <- var.test(Global_Sales ~ System, data = testing_data)
+    data_ttest <- t.test(xbox.test, playstation.test, alternative = "two.sided", var.equal = FALSE)
+    
+    output$ttest <- renderPrint({
+        data_ttest
+    })
+
 }
 shinyApp(ui = ui, server = server)
