@@ -95,7 +95,35 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                   p("A p-value of 0.03956 indicates there is strong evidence to reject the null hypothesis."),
                                   p("There is a difference in true mean global sales of games released on Xbox and Playstation consoles. Based on the sample"),
                                   p("means, Xbox has had higher mean global sales compared to Playstation for games which have been released on both consoles.")
-                         )
+                         ),
+                         
+                         #T Test Distributions
+                         tabPanel("T-Test Distributions",
+                                  plotOutput(outputId = "bothplot"),
+                                  plotOutput(outputId = "xboxplot"),
+                                  plotOutput(outputId = "playplot")
+                        ), #Closing T Test Distributions
+                        
+                        tabPanel("Regression",
+                                 h3("Creating a Regression Model to Predict Global Sales"),
+                                 h4("Analysis plan"),
+                                 p("To accomplish our goal, first we decided to trim `Publisher` and `Genre` down to the top five in each category. 
+                                   We did this because of the large number of Publishers and Genres.
+                                 We also trimmed `Rating` down to be either E, E10+, M or T for the same reasoning. 
+                                   The possible values for each variable are listed below:"),
+                                 p("- `Publisher` : Electronic Arts, Activision, Namco Bandai Games, Ubisoft, Konami Digital Entertainment"),
+                                 p("- `Genre` : Sports, Action, Misc, Shooter, Simulation"),
+                                 p("- `Rating` : E, E10+, M, T"),
+                                 h4("Model Selection"),
+                                 p("We decided to use backwards model selection for our analysis. In other words, we started with all four 
+                                    explanatory variables in our model, and removed insignificant variables at the `alpha = 0.05` level. 
+                                    `Year of Release` was the only variable found to be insignificant with a p-value of `0.0664`. 
+                                    The other variables had at least one category with a significant p-value and were kept in the model."),
+                                 h4("Final Model"),
+                                 p("Our final model and corresponding output are listed below."),
+                                 verbatimTextOutput("regress")
+                                 
+                        )
                          
 #Closing shinyUI
 ))
@@ -103,6 +131,7 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
 
 server <- function(input, output) {
     
+    #SEARCH TABLE SECTION
     videogames <- video_game_sales %>% 
         dplyr::select(Name, Year_of_Release, Platform, Publisher, Global_Sales)
     
@@ -112,6 +141,8 @@ server <- function(input, output) {
                                     options = list(columnDefs = list(list(width = '150px'))))
         videogames
     })
+    
+    #INTERACTIVE PLOTS SECTION
     
     #Create a new dataset containing all the variables we want.
     cleangames <- video_game_sales %>% 
@@ -123,6 +154,8 @@ server <- function(input, output) {
         ggplot(cleangames, mapping = aes(x = !!as.name(input$xvariable), y = !!as.name(input$yvariable))) +
             geom_jitter()
     })
+    
+    #TIME PLOTS SECTION
     
     x_variable <- reactive({
         ifelse (input$xvariable_time == "Year", return ("Year"), return ("Month"))
@@ -208,7 +241,7 @@ server <- function(input, output) {
         }
     })
     
-    #T-Test
+    #T-TEST SECTION
     xbox_playstation <- video_game_sales %>%
         filter(Platform %in% "XOne" | 
                    Platform %in% "XB" |
@@ -247,6 +280,43 @@ server <- function(input, output) {
     
     output$ttest <- renderPrint({
         data_ttest
+    })
+    
+    
+    #Render Both System Boxplot
+    output$bothplot <- renderPlot({
+        boxplot(log(Global_Sales) ~ System, data = testing_data, ylab = "Log of Global Sales", main = "Boxplot of Global Sales By System")
+    })
+    
+    #Render PLaystation Histogram
+    output$playplot <- renderPlot({
+        hist(log(playstation$Global_Sales), xlab = "Log of Global Sales", main = "Histogram of Playstation Global Sales")
+    })
+    
+    #Render Xbox Histogram
+    output$xboxplot <- renderPlot({
+        hist(log(xbox$Global_Sales), xlab = "Log of Global Sales", main = "Histogram of Xbox Global Sales")
+    })
+    
+    #REGRESSION SECTION
+    regressiondata <- video_game_sales %>% 
+        filter(Genre %in% c("Sports", "Action", "Misc", "Shooter", "Simulation") & 
+                   Publisher %in% c("Electronic Arts", 
+                                    "Activision", 
+                                    "Namco Bandai Games",
+                                    "Ubisoft",
+                                    "Konami Digital Entertainment") &
+                   Rating %in% c("E", "E10+", "M", "T")) %>% 
+        mutate(Year_of_Release = as.numeric(Year_of_Release)) %>% 
+        select(Genre, Publisher, Global_Sales, Rating, Year_of_Release)
+    
+    #Render output for Regression
+    output$regress <- renderPrint({
+        Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+        
+        Model %>% 
+            summary()
+
     })
 
 }
