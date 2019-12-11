@@ -14,7 +14,7 @@ output:
 
 #### Our Dataset
 
-For our final project we decided to work with a dataset found on [Kaggle](https://www.kaggle.com/). This dataset is a list of all video game sales as of December 22, 2016. Our dataset contained the following variables:
+For our final project we decided to work with a dataset found on [Kaggle](https://www.kaggle.com/sidtwr/videogames-sales-dataset#Video_Games_Sales_as_at_22_Dec_2016.csv). This dataset is a list of all video game sales as of December 22, 2016. Our dataset contained the following variables:
 
 - Name : Name of the video game
 - Platform : Platform the game was released on
@@ -40,6 +40,7 @@ Using an exploratory data analysis for [application 05](https://github.com/sta51
 1. Could we create a regression to predict global sales using this dataset?
 2. Create an RShiny application containing a table with this dataset where you can search the global sales for any video game in the dataset.
 3. Create visualizations to show the average global sales by month of release and average global sales by year of release. Are there any trends or abnormalties?
+4. Is there a difference in mean global sales for Xbox and Playstation for games which are released on both consoles?
 
 ## Data Analysis Plan
 

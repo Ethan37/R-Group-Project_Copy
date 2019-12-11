@@ -22,11 +22,11 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                   p("- Year_of_Release : Year the game was released"),
                                   p("- Genre : Genre of the video game"),
                                   p("- Publisher : Publisher of the video game"),
-                                  p("- NA_Sales : North American Sales (Millions USD)"),
-                                  p("- EU_Sales : European Sales (Millions USD)"),
-                                  p("- JP_Sales : Sales in Japan (Millions USD)"),
-                                  p("- Other_Sales : Sales in other countries (Millions USD)"),
-                                  p("- Global_Sales : Global Sales (USD)"),
+                                  p("- NA_Sales : North American Sales (Millions Copies Sold)"),
+                                  p("- EU_Sales : European Sales (Millions Copies Sold)"),
+                                  p("- JP_Sales : Sales in Japan (Millions Copies Sold)"),
+                                  p("- Other_Sales : Sales in other countries (Millions Copies Sold)"),
+                                  p("- Global_Sales : Global Sales (Millions Copies Sold)"),
                                   p("- Critic_Score : Average critic score out of 100"),
                                   p("- Critic_Count : Number of critic reviews"),
                                   p("- User_Score : Average user score out of 10"),
@@ -180,16 +180,6 @@ server <- function(input, output) {
         ifelse (input$xvariable_time == "Year", return ("Year"), return ("Month"))
     })
     
-    observeEvent(input$xvariable_time, {
-        if(input$xvariable_time == "Year"){
-            enable("monthsRange")
-            disable("yearsRange")
-        }else{
-            enable("yearsRange")
-            disable("monthsRange")
-        }
-    })
-    
     months_range_1 <- reactive({
         return (input$monthsRange[1])
     })
@@ -218,7 +208,7 @@ server <- function(input, output) {
             geom_bar(stat = "identity") +
             labs(title = "Average sales of video games per month",
                  subtitle = "restricted by year",
-                 y = "Average sales (Billions)",
+                 y = "Average sales (Millions)",
                  x = "Month")
         
         else 
@@ -231,7 +221,7 @@ server <- function(input, output) {
             geom_bar(stat = "identity") +
             labs(title = "Average sales of video games per year",
                  subtitle = "restricted by month",
-                 y = "Average sales (Billions)",
+                 y = "Average sales (Millions)",
                  x = "Year")
         
     })
@@ -245,7 +235,7 @@ server <- function(input, output) {
                 geom_jitter() +
                 labs(title = "Global sales of video games",
                      x = "Year", 
-                     y = "Global sales (Billions)")
+                     y = "Global sales (Millions)")
         }
         
         else {
@@ -256,7 +246,7 @@ server <- function(input, output) {
                 geom_jitter() +
                 labs(title = "Global sales of video games",
                      x = "Month", 
-                     y = "Global sales (Billions)")
+                     y = "Global sales (Millions)")
         }
     })
     
