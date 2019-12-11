@@ -45,7 +45,7 @@ by_publisher <- video_game_sales %>%
   group_by(Publisher) %>% 
   summarise(Count = n()) %>%
   arrange(desc(Count)) %>%
-  top_frac(.05)
+  top_n(5)
 
 by_publisher
 ```
@@ -58,7 +58,7 @@ by_genre <- PBMerge %>%
   group_by(Genre) %>% 
   summarise(Count = n()) %>%
   arrange(desc(Count)) %>%
-  top_frac(.90)
+  top_n(5)
 
 by_genre
 ```
@@ -69,8 +69,37 @@ PBGMerge <- PBMerge %>%
 
 sales_by_genre_pub <- regsubsets(Global_Sales ~ factor(Genre) + factor(Publisher), data = PBGMerge)
 
-summary(sales_by_genre_pub)$adjr2
+summary(sales_by_genre_pub)
 ```
+
+```{r RatingCounts}
+summary(video_game_sales$Rating)
+```
+
+
+```{r regressiondata}
+regressiondata <- video_game_sales %>% 
+  filter(Genre %in% c("Sports", "Action", "Misc", "Shooter", "Simulation") & 
+                        Publisher %in% c("Electronic Arts", 
+                                         "Activision", 
+                                         "Namco Bandai Games",
+                                         "Ubisoft",
+                                         "Konami Digital Entertainment") &
+           Rating %in% c("E", "E10+", "M", "T")) %>% 
+  select(Genre, Publisher, Global_Sales, Rating)
+  
+ 
+
+regressiondata
+```
+
+
+```{r regressionmodel}
+Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+
+summary(Model)
+```
+
 
 ### Best time to release a game
 
@@ -106,22 +135,30 @@ video_game_sales_release <- video_game_sales %>%
   distinct(Name, Platform, Global_Sales, .keep_all = TRUE)
 
 # Can filter Year and shows sales by month
-video_game_sales_release %>%
+monthlysales <- video_game_sales_release %>%
   filter(between(year(releaseDate), 1990, 2000)) %>%
   group_by(month = month(releaseDate, label = TRUE)) %>%
   summarise(avg_sales_per_month = median(Global_Sales)) %>%
-  ggplot(aes(x = month, y = avg_sales_per_month, fill = avg_sales_per_month)) +
-  geom_bar(stat = "identity") 
+  ggplot(aes(x = month, y = avg_sales_per_month)) +
+  geom_bar(stat = "identity") + 
+  xlab("Month of Release") + 
+  ylab("Average Sales Per Month")
 
 # Can filter Month and shows by Year
-video_game_sales_release %>%
+yearlysales <- video_game_sales_release %>%
   filter(between(month(releaseDate), 1, 12)) %>%
   group_by(year = year(releaseDate)) %>%
   summarise(avg_sales_per_year = median(Global_Sales)) %>% 
-  ggplot(aes(x = year, y = avg_sales_per_year, fill = avg_sales_per_year)) +
-  geom_bar(stat = "identity") 
+  ggplot(aes(x = year, y = avg_sales_per_year)) +
+  geom_bar(stat = "identity")  + 
+  xlab("Year of Release") + 
+  ylab("Average Sales Per Year")
 ```
 
+```{r savingplots}
+ggsave("monthlysales.png")
+ggsave("yearlysales.png")
+```
 
 
 

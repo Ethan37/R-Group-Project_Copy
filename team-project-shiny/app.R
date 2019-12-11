@@ -3,9 +3,12 @@ library(shinyjs)
 library(tidyverse)
 library(DT)
 source("RDS-Creation-Script.R")
+#USEFUL LINKS FOR CREATING THE TABS AND DIFF SIDE PANELS
 # https://jleach.shinyapps.io/oyster/
 # https://github.com/Jim89/oyster/blob/master/R/shiny/ui.R
 
+# SHINY THEMES PACKAGE: 
+# http://rstudio.github.io/shinythemes/
 
 
 ui <- shinyUI(navbarPage("Video Game Sales Application",
