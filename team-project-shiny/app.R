@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyjs)
 library(tidyverse)
 library(DT)
 source("RDS-Creation-Script.R")
@@ -27,6 +28,7 @@ tabPanel("Search Table",
 #Plots Tab
 tabPanel("Plots", 
          fluidRow(
+             useShinyjs(),
              sidebarPanel(
                  selectInput("xvariable",
                              label = "Choose an X Variable",
@@ -43,8 +45,30 @@ tabPanel("Plots",
              ),
             mainPanel(plotOutput("gameplot"))
          )
-)
+),
 
+# Time plots tab
+tabPanel("Time plots",
+         fluidRow(
+             sidebarPanel(
+                 selectInput("xvariable_time",
+                             label = "Choose an X Variable",
+                             choices = list("Year", "Month"),
+                             selected = "Year"
+
+                 ),
+                 br(),
+                 sliderInput("yearsRange",
+                                 label = "Choose the years range",
+                                 min = 1971, max = 2016, value = c(1971, 2016), sep = ""),
+                 br(),
+                 sliderInput("monthsRange",
+                             label = "Choose the months range",
+                             min = 1, max = 12, value = c(1, 12))
+             ),
+             mainPanel(plotOutput("timeplot"))
+         )
+)
 #Closing shinyUI
 ))
 
@@ -72,6 +96,64 @@ server <- function(input, output) {
         # Render a scatterplot
         ggplot(cleangames, mapping = aes(x = !!as.name(input$xvariable), y = !!as.name(input$yvariable))) +
                        geom_jitter()
+    })
+    
+    x_variable <- reactive({
+        ifelse (input$xvariable_time == "Year", return ("Year"), return ("Month"))
+    })
+    
+    observeEvent(input$xvariable_time, {
+        if(input$xvariable_time == "Year"){
+            enable("monthsRange")
+            disable("yearsRange")
+        }else{
+            enable("yearsRange")
+            disable("monthsRange")
+        }
+    })
+    
+    months_range_1 <- reactive({
+        return (input$monthsRange[1])
+    })
+    
+    months_range_2 <- reactive({
+        return (input$monthsRange[2])
+    })
+    
+    years_range_1 <- reactive({
+        return (input$yearsRange[1])
+    })
+    
+    years_range_2 <- reactive({
+        return (input$yearsRange[2])
+    })
+    
+    output$timeplot <- renderPlot({   
+        
+        if (x_variable() == "Month")
+            video_game_sales_release %>%
+            filter(between(year(releaseDate), years_range_1(), years_range_2())) %>%
+            group_by(month = month(releaseDate, label = TRUE)) %>%
+            summarise(avg_sales_per_month = median(Global_Sales)) %>%
+            ggplot(aes(x = month, y = avg_sales_per_month, fill = avg_sales_per_month)) +
+            geom_bar(stat = "identity") +
+            labs(title = "Average sales of video games per month",
+                 subtitle = "restricted by year",
+                 y = "Average sales (Billions)",
+                 x = "Month")
+            
+        else 
+            video_game_sales_release %>%
+            filter(between(month(releaseDate), months_range_1(), months_range_2())) %>%
+            group_by(year = year(releaseDate)) %>%
+            summarise(avg_sales_per_year = median(Global_Sales)) %>% 
+            ggplot(aes(x = year, y = avg_sales_per_year, fill = avg_sales_per_year)) +
+            geom_bar(stat = "identity") +
+            labs(title = "Average sales of video games per year",
+                 subtitle = "restricted by month",
+                 y = "Average sales (Billions)",
+                 x = "Year")
+        
     })
 }
 shinyApp(ui = ui, server = server)
