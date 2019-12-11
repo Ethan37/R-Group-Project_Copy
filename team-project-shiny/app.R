@@ -9,26 +9,30 @@ source("RDS-Creation-Script.R")
 # SHINY THEMES PACKAGE: 
 # http://rstudio.github.io/shinythemes/
 
-withConsoleRedirect <- function(containerId, expr) {
-    # Change type="output" to type="message" to catch stderr
-    # (messages, warnings, and errors) instead of stdout.
-    txt <- capture.output(results <- expr, type = "output")
-    if (length(txt) > 0) {
-        insertUI(paste0("#", containerId), where = "beforeEnd",
-                 ui = paste0(txt, "\n", collapse = "")
-        )
-    }
-    results
-}
-
-
-
 ui <- shinyUI(navbarPage("Video Game Sales Application", 
-                         
-                         
                          # Defining tabs to be used
                          #Introduction
-                         tabPanel("Introduction"
+                         tabPanel("Introduction",
+                                  h2("Welcome to our Shiny Application"),
+                                  p("Within this application you will find 6 tabs using a dataset found on Kaggle containing sales information on video games 
+                                  going back to 1980. The variables in this dataset are as follows:"),
+                                  br(),
+                                  p("- Name : Name of the video game"),
+                                  p("- Platform : Platform the game was released on"),
+                                  p("- Year_of_Release : Year the game was released"),
+                                  p("- Genre : Genre of the video game"),
+                                  p("- Publisher : Publisher of the video game"),
+                                  p("- NA_Sales : North American Sales (Millions USD)"),
+                                  p("- EU_Sales : European Sales (Millions USD)"),
+                                  p("- JP_Sales : Sales in Japan (Millions USD)"),
+                                  p("- Other_Sales : Sales in other countries (Millions USD)"),
+                                  p("- Global_Sales : Global Sales (USD)"),
+                                  p("- Critic_Score : Average critic score out of 100"),
+                                  p("- Critic_Count : Number of critic reviews"),
+                                  p("- User_Score : Average user score out of 10"),
+                                  p("- User_Count : Number of user reviews"),
+                                  p("- Developer : Developer of the video game"),
+                                  p("- Rating : The video games censorship rating"),
                          ),
                          
                          #Search Table Tab
@@ -86,11 +90,14 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                      Playstation sell better on one console?"),
                                   p("Null Hypothesis: The true mean sales of games released on Xbox and Playstation consoles is equal."),
                                   p("Alternative Hypothesis: There is a difference in true mean sales of games released on Xbox and Playstation consoles."),
+                                  br(),
                                   h4("Assumptions"),
                                   p("Due to our dataset containing the sales data for all games released on Xbox and Playstation our sample is practically the"),
                                   p("populations of Xbox and Playstation games. Our test will continue as planned."),
+                                  br(),
                                   h4("The T-test"),
                                   verbatimTextOutput("ttest"),
+                                  br(),
                                   h4("Conclusion"),
                                   p("A p-value of 0.03956 indicates there is strong evidence to reject the null hypothesis."),
                                   p("There is a difference in true mean global sales of games released on Xbox and Playstation consoles. Based on the sample"),
@@ -104,6 +111,7 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                   plotOutput(outputId = "playplot")
                         ), #Closing T Test Distributions
                         
+                        #Regression Tab
                         tabPanel("Regression",
                                  h3("Creating a Regression Model to Predict Global Sales"),
                                  h4("Analysis plan"),
@@ -114,16 +122,25 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                  p("- `Publisher` : Electronic Arts, Activision, Namco Bandai Games, Ubisoft, Konami Digital Entertainment"),
                                  p("- `Genre` : Sports, Action, Misc, Shooter, Simulation"),
                                  p("- `Rating` : E, E10+, M, T"),
+                                 br(),
                                  h4("Model Selection"),
                                  p("We decided to use backwards model selection for our analysis. In other words, we started with all four 
                                     explanatory variables in our model, and removed insignificant variables at the `alpha = 0.05` level. 
                                     `Year of Release` was the only variable found to be insignificant with a p-value of `0.0664`. 
                                     The other variables had at least one category with a significant p-value and were kept in the model."),
+                                 br(),
                                  h4("Final Model"),
                                  p("Our final model and corresponding output are listed below."),
-                                 verbatimTextOutput("regress")
+                                 br(),
+                                 verbatimTextOutput("regress"),
+                                 br(),
+                                 h4("Conclusion"),
+                                 p("While our variables in our model were significant, an adjusted r-squared value of `0.0735` is not good. 
+                                   This tells us our model only explains `7.35%` of the variation in `Global Sales`. 
+                                   While this is not surprising considering there are many potential factors which affect `Global Sales`; 
+                                   our model cannot reliably predict `Global Sales`.")
                                  
-                        )
+                        )#Close Regression Tab
                          
 #Closing shinyUI
 ))
