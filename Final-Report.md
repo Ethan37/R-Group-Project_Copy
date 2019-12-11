@@ -9,7 +9,7 @@ output:
 
 
 
-\\newpage
+
 ## Introduction
 
 #### Our Dataset
@@ -40,8 +40,6 @@ Using an exploratory data analysis for [application 05](https://github.com/sta51
 1. Could we create a regression to predict global sales using this dataset?
 2. Create an RShiny application containing a table with this dataset where you can search the global sales for any video game in the dataset.
 3. Create visualizations to show the average global sales by month of release and average global sales by year of release. Are there any trends or abnormalties?
-
-\\pagebreak
 
 ## Data Analysis Plan
 
