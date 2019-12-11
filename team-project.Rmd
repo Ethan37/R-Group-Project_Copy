@@ -91,7 +91,7 @@ regressiondata <- video_game_sales %>%
   
  
 
-regressiondata
+glimpse(regressiondata)
 ```
 
 
@@ -160,6 +160,19 @@ yearlysales <- video_game_sales_release %>%
 ggsave("monthlysales.png")
 ggsave("yearlysales.png")
 ```
+
+
+
+
+
+
+```{r checking-sales-of-games-between-1980-1990}
+video_game_sales_release %>%
+  ggplot(aes(x = year(releaseDate), y = Global_Sales)) +
+  geom_jitter() 
+
+```
+
 
 
 
