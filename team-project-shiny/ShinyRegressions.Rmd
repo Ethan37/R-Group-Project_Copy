@@ -46,9 +46,9 @@ We decided to use backwards model selection for our analysis. In other words, we
 Global Sales = Genre + Publisher + Rating
 
 ```{r regressionmodel, echo=FALSE}
-Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+Model <- lm(log(Global_Sales) ~ Genre + Publisher + Rating + Year_of_Release, data = regressiondata)
 
-Model$coefficients
+summary(Model)
 Model %>% 
   glance() %>% 
   select(r.squared)

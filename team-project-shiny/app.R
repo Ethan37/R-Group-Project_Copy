@@ -126,17 +126,19 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                  h4("Model Selection"),
                                  p("We decided to use backwards model selection for our analysis. In other words, we started with all four 
                                     explanatory variables in our model, and removed insignificant variables at the `alpha = 0.05` level. 
-                                    `Year of Release` was the only variable found to be insignificant with a p-value of `0.0664`. 
-                                    The other variables had at least one category with a significant p-value and were kept in the model."),
+                                    `Year of Release` was the only variable found to be insignificant with a p-value of `0.3079`. 
+                                    The other variables had at least one category with a significant p-value and were kept in the model. The log of Global sales
+                                   was used because of the values of some of the game sales."),
                                  br(),
                                  h4("Final Model"),
-                                 p("Our final model and corresponding output are listed below."),
+                                 p("Our final model and corresponding output are listed below. Reference categories are Activision for `Publisher`,
+                                   Action for `Genre`, and E for `Rating`."),
                                  br(),
                                  verbatimTextOutput("regress"),
                                  br(),
                                  h4("Conclusion"),
-                                 p("While our variables in our model were significant, an adjusted r-squared value of `0.0735` is not good. 
-                                   This tells us our model only explains `7.35%` of the variation in `Global Sales`. 
+                                 p("While our variables in our model were significant, an adjusted r-squared value of `0.09161` is not good. 
+                                   This tells us our model only explains `9.16%` of the variation in `Global Sales`. 
                                    While this is not surprising considering there are many potential factors which affect `Global Sales`; 
                                    our model cannot reliably predict `Global Sales`.")
                                  
@@ -329,7 +331,7 @@ server <- function(input, output) {
     
     #Render output for Regression
     output$regress <- renderPrint({
-        Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+        Model <- lm(log(Global_Sales) ~ Genre + Publisher + Rating, data = regressiondata)
         
         Model %>% 
             summary()
