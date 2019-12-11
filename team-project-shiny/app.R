@@ -41,7 +41,7 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                       sidebarPanel(
                                           selectInput("xvariable",
                                                       label = "Choose an X Variable",
-                                                      choices = list("Year_of_Release", "Genre", "Rating", "User_Score", "Critic_Score"),
+                                                      choices = list("Year_of_Release", "Genre", "Rating", "User_Score", "Critic_Score", "Platform"),
                                                       selected = "Year_of_Release"
                                                       
                                           ),
@@ -74,7 +74,10 @@ ui <- shinyUI(navbarPage("Video Game Sales Application",
                                                       label = "Choose the months range",
                                                       min = 1, max = 12, value = c(1, 12))
                                       ),
-                                      mainPanel(plotOutput("timeplot")))
+                                      mainPanel(plotOutput("timeplot"))),
+                                  fluidRow(
+                                      mainPanel(plotOutput("timeScatterPlot"))
+                                  )
                          ), #Closing Time plots panel
                          
                          #T Test Tab
@@ -155,7 +158,8 @@ server <- function(input, output) {
         
         if (x_variable() == "Month")
             video_game_sales_release %>%
-            filter(between(year(releaseDate), years_range_1(), years_range_2())) %>%
+            filter(between(year(releaseDate), years_range_1(), years_range_2()) &
+                       between(month(releaseDate), months_range_1(), months_range_2())) %>%
             group_by(month = month(releaseDate, label = TRUE)) %>%
             summarise(avg_sales_per_month = median(Global_Sales)) %>%
             ggplot(aes(x = month, y = avg_sales_per_month, fill = avg_sales_per_month)) +
@@ -167,7 +171,8 @@ server <- function(input, output) {
         
         else 
             video_game_sales_release %>%
-            filter(between(month(releaseDate), months_range_1(), months_range_2())) %>%
+            filter(between(month(releaseDate), months_range_1(), months_range_2()) &
+                       between(year(releaseDate), years_range_1(), years_range_2())) %>%
             group_by(year = year(releaseDate)) %>%
             summarise(avg_sales_per_year = median(Global_Sales)) %>% 
             ggplot(aes(x = year, y = avg_sales_per_year, fill = avg_sales_per_year)) +
@@ -177,6 +182,30 @@ server <- function(input, output) {
                  y = "Average sales (Billions)",
                  x = "Year")
         
+    })
+    
+    output$timeScatterPlot <- renderPlot({
+        if (x_variable() == "Year") {
+            video_game_sales_release %>%
+                filter(between(month(releaseDate), months_range_1(), months_range_2()) &
+                           between(year(releaseDate), years_range_1(), years_range_2())) %>%
+                ggplot(aes(x = year(releaseDate), y = Global_Sales)) +
+                geom_jitter() +
+                labs(title = "Global sales of video games",
+                     x = "Year", 
+                     y = "Global sales (Billions)")
+        }
+        
+        else {
+            video_game_sales_release %>%
+                filter(between(year(releaseDate), years_range_1(), years_range_2()) &
+                           between(month(releaseDate), months_range_1(), months_range_2())) %>%
+                ggplot(aes(x = month(releaseDate, label = TRUE), y = Global_Sales)) +
+                geom_jitter() +
+                labs(title = "Global sales of video games",
+                     x = "Month", 
+                     y = "Global sales (Billions)")
+        }
     })
     
     #T-Test
