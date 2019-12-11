@@ -86,7 +86,8 @@ regressiondata <- video_game_sales %>%
                                          "Ubisoft",
                                          "Konami Digital Entertainment") &
            Rating %in% c("E", "E10+", "M", "T")) %>% 
-  select(Genre, Publisher, Global_Sales, Rating)
+  mutate(Year_of_Release = as.numeric(Year_of_Release)) %>% 
+  select(Genre, Publisher, Global_Sales, Rating, Year_of_Release)
   
  
 
@@ -95,7 +96,7 @@ regressiondata
 
 
 ```{r regressionmodel}
-Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+Model <- lm(Global_Sales ~ Genre + Publisher + Rating + Year_of_Release, data = regressiondata)
 
 summary(Model)
 ```

@@ -1,28 +1,77 @@
 ---
-title: "ShinyRegressions"
+title: "Our Regression Analysis"
 output: html_document
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r load-packages, include=FALSE}
+library(tidyverse)
+library(leaps)
+library(lubridate)
+library(broom)
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r load-data, include=FALSE}
+video_game_sales <- read.csv("data/Video_Games_Sales_as_at_22_Dec_2016.csv")
 ```
+```{r regressiondata, include=FALSE}
+regressiondata <- video_game_sales %>% 
+  filter(Genre %in% c("Sports", "Action", "Misc", "Shooter", "Simulation") & 
+                        Publisher %in% c("Electronic Arts", 
+                                         "Activision", 
+                                         "Namco Bandai Games",
+                                         "Ubisoft",
+                                         "Konami Digital Entertainment") &
+           Rating %in% c("E", "E10+", "M", "T")) %>% 
+  mutate(Year_of_Release = as.numeric(Year_of_Release)) %>% 
+  select(Genre, Publisher, Global_Sales, Rating, Year_of_Release)
+  
+ 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+regressiondata
+```
+**Goal** :
+To create a regression equation to predict `Global Sales` by `Publisher`, `Genre`, `Rating`, and `Year of Release`.
+
+To accomplish our goal, first we decided to trim `Publisher` and `Genre` down to the top five in each category. We did this because of the large number of Publishers and Genres. We also trimmed `Rating` down to be either E, E10+, M or T for the same reasoning. The possible values for each variable are listed below.
+
+- `Publisher` : Electronic Arts, Activision, Namco Bandai Games, Ubisoft, Konami Digital Entertainment
+- `Genre` : Sports, Action, Misc, Shooter, Simulation
+- `Rating` : E, E10+, M, T
+
+**Model Selection** :
+We decided to use backwards model selection for our analysis. In other words, we started with all four explanatory variables in our model, and removed insignificant variables at the `alpha = 0.05` level. `Year of Release` was the only variable found to be insignificant with a p-value of `0.0664`. The other variables had at least one category with a significant p-value and were kept in the model.
+
+**Final Model** : 
+Global Sales = Genre + Publisher + Rating
+
+```{r regressionmodel, echo=FALSE}
+Model <- lm(Global_Sales ~ Genre + Publisher + Rating, data = regressiondata)
+
+Model$coefficients
+Model %>% 
+  glance() %>% 
+  select(r.squared)
+```
+**Conclusions** :
+While our variables in our model were significant, an adjusted r-squared value of `0.0735` is not good. This tells us our model only explains `7.35%` of the variation in `Global Sales`. While this is not surprising considering there are many potential factors which affect `Global Sales`; our model cannot reliably predict `Global Sales`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

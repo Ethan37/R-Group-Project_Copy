@@ -25,10 +25,10 @@ tabPanel("Introduction",
 #Search Table Tab
 tabPanel("Search Table", 
          DT::dataTableOutput("table")
-),
+), #Closing Search Table Tab
 
 #Plots Tab
-tabPanel("Plots", 
+tabPanel("Interactive Plots", 
          fluidRow(
              sidebarPanel(
                  selectInput("xvariable",
@@ -46,7 +46,15 @@ tabPanel("Plots",
              ),
             mainPanel(plotOutput("gameplot"))
          )
-)
+), #Closing Plots Tab
+
+#Regression Tab
+tabPanel("Regression",
+         fluidRow(
+             includeHTML('ShinyRegressions.html')
+         )
+    
+) #Closing Regression Tab
 
 #Closing shinyUI
 ))
