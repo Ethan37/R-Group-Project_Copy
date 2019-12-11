@@ -1,7 +1,6 @@
-library(shiny)
-library(shinyjs)
 library(tidyverse)
 library(DT)
+library(shinyjs)
 source("RDS-Creation-Script.R")
 #USEFUL LINKS FOR CREATING THE TABS AND DIFF SIDE PANELS
 # https://jleach.shinyapps.io/oyster/
@@ -11,85 +10,64 @@ source("RDS-Creation-Script.R")
 # http://rstudio.github.io/shinythemes/
 
 
-ui <- shinyUI(navbarPage("Video Game Sales Application",
-                   
-                   
-# Defining tabs to be used
-
-#Introduction
-tabPanel("Introduction",
-         #includeMarkdown(""))
-         h4("Welcome to our Shiny application")
-
-                   ),
-
-#Search Table Tab
-tabPanel("Search Table", 
-         DT::dataTableOutput("table")
-), #Closing Search Table Tab
-
-#Plots Tab
-tabPanel("Interactive Plots", 
-         fluidRow(
-             useShinyjs(),
-             sidebarPanel(
-                 selectInput("xvariable",
-                             label = "Choose an X Variable",
-                             choices = list("Year_of_Release", "Genre", "Rating", "User_Score", "Critic_Score"),
-                             selected = "Year_of_Release"
-                             
-                 ),
-                 br(),
-                 selectInput("yvariable",
-                             label = "Choose a Y Variable",
-                             choices = list("Global_Sales", "NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"),
-                             selected = "Global_Sales"
-                 )   
-             ),
-            mainPanel(plotOutput("gameplot"))
-         )
-<<<<<<< HEAD
-), #Closing Plots Tab
-
-#Regression Tab
-tabPanel("Regression",
-         fluidRow(
-             includeHTML('ShinyRegressions.html')
-         )
-    
-) #Closing Regression Tab
-=======
-),
->>>>>>> c8ac57485b70d42aea478d6d6a13957f1f2ca4d4
-
-# Time plots tab
-tabPanel("Time plots",
-         fluidRow(
-             sidebarPanel(
-                 selectInput("xvariable_time",
-                             label = "Choose an X Variable",
-                             choices = list("Year", "Month"),
-                             selected = "Year"
-
-                 ),
-                 br(),
-                 sliderInput("yearsRange",
-                                 label = "Choose the years range",
-                                 min = 1971, max = 2016, value = c(1971, 2016), sep = ""),
-                 br(),
-                 sliderInput("monthsRange",
-                             label = "Choose the months range",
-                             min = 1, max = 12, value = c(1, 12))
-             ),
-             mainPanel(plotOutput("timeplot"))
-         )
-)
-#Closing shinyUI
+ui <- shinyUI(navbarPage("Video Game Sales Application", useShinyjs(),
+                         
+                         
+                         # Defining tabs to be used
+                         #Introduction
+                         tabPanel("Introduction",
+                                  #includeMarkdown(""))
+                                  h4("Welcome to our Shiny application")
+                         ),
+                         #Search Table Tab
+                         tabPanel("Search Table", 
+                                  DT::dataTableOutput("table")
+                         ),
+                         #Plots Tab
+                         tabPanel("Plots", 
+                                  fluidRow(
+                                      sidebarPanel(
+                                          selectInput("xvariable",
+                                                      label = "Choose an X Variable",
+                                                      choices = list("Year_of_Release", "Genre", "Rating", "User_Score", "Critic_Score"),
+                                                      selected = "Year_of_Release"
+                                                      
+                                          ),
+                                          br(),
+                                          selectInput("yvariable",
+                                                      label = "Choose a Y Variable",
+                                                      choices = list("Global_Sales", "NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"),
+                                                      selected = "Global_Sales"
+                                          )   
+                                      ),
+                                      mainPanel(plotOutput("gameplot"))
+                                  )
+                         ),
+                         
+                         # Time plots tab
+                         tabPanel("Time plots",
+                                  fluidRow(
+                                      sidebarPanel(
+                                          selectInput("xvariable_time",
+                                                      label = "Choose an X Variable",
+                                                      choices = list("Year", "Month"),
+                                                      selected = "Year"
+                                          ),
+                                          br(),
+                                          sliderInput("yearsRange",
+                                                      label = "Choose the years range",
+                                                      min = 1971, max = 2016, value = c(1971, 2016), sep = ""),
+                                          br(),
+                                          sliderInput("monthsRange",
+                                                      label = "Choose the months range",
+                                                      min = 1, max = 12, value = c(1, 12))
+                                      ),
+                                      mainPanel(plotOutput("timeplot")))
+                         )
+                         #Closing shinyUI
 ))
 
 
-    
-    
 server <- function(input, output) {
     
     videogames <- video_game_sales %>% 
@@ -110,7 +88,7 @@ server <- function(input, output) {
         
         # Render a scatterplot
         ggplot(cleangames, mapping = aes(x = !!as.name(input$xvariable), y = !!as.name(input$yvariable))) +
-                       geom_jitter()
+            geom_jitter()
     })
     
     x_variable <- reactive({
@@ -156,7 +134,7 @@ server <- function(input, output) {
                  subtitle = "restricted by year",
                  y = "Average sales (Billions)",
                  x = "Month")
-            
+        
         else 
             video_game_sales_release %>%
             filter(between(month(releaseDate), months_range_1(), months_range_2())) %>%
