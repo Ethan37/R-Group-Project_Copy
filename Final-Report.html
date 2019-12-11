@@ -369,18 +369,13 @@ summary {
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a><ul>
-<li><a href="#our-dataset">Our Dataset</a></li>
-<li><a href="#general-research-questions-and-ideas">General Research Questions and Ideas</a></li>
-</ul></li>
 <li><a href="#data-analysis-plan">Data Analysis Plan</a></li>
 </ul>
 </div>
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<div id="our-dataset" class="section level3">
-<h3>Our Dataset</h3>
+<p>\newpage ## Introduction</p>
+<div id="our-dataset" class="section level4">
+<h4>Our Dataset</h4>
 <p>For our final project we decided to work with a dataset found on <a href="https://www.kaggle.com/">Kaggle</a>. This dataset is a list of all video game sales as of December 22, 2016. Our dataset contained the following variables:</p>
 <ul>
 <li>Name : Name of the video game</li>
@@ -401,18 +396,38 @@ summary {
 <li>Rating : The video games censorship rating</li>
 </ul>
 </div>
-<div id="general-research-questions-and-ideas" class="section level3">
-<h3>General Research Questions and Ideas</h3>
+<div id="general-research-questions-and-ideas" class="section level4">
+<h4>General Research Questions and Ideas</h4>
 <p>Using an exploratory data analysis for <a href="https://github.com/sta518/application05-s01-blue">application 05</a> we developed some ideas and questions on how we would like to analyze this dataset. The ideas were as follows:</p>
 <ol style="list-style-type: decimal">
 <li>Could we create a regression to predict global sales using this dataset?</li>
 <li>Create an RShiny application containing a table with this dataset where you can search the global sales for any video game in the dataset.</li>
 <li>Create visualizations to show the average global sales by month of release and average global sales by year of release. Are there any trends or abnormalties?</li>
 </ol>
-</div>
+<p>\pagebreak</p>
 </div>
 <div id="data-analysis-plan" class="section level2">
 <h2>Data Analysis Plan</h2>
+<div id="regression-analysis" class="section level4">
+<h4>Regression Analysis</h4>
+<p>For our regression analysis we decided to include five variables from the dataset. Our response variable is <code>Global_Sales</code>. The explanatory variables are <code>Genre</code> , <code>Publisher</code> , <code>Rating</code>, and <code>Year_of_Release</code>. Due to the large number of publishers and genres we decided to take the top 5 responses from each variable. Similar to publishers and genres, we only took the top four ratings. The reason for this was to ensure we had a manageable number of coefficients for each of these categories in our final model. Our model building philosophy will be backwards selection and we will keep any variables with at least one significant coefficient.</p>
+</div>
+<div id="shiny-application" class="section level4">
+<h4>Shiny Application</h4>
+<p>What we plan to include in our shiny app is:</p>
+<ul>
+<li>Multiple tabs with different sections including each group members contributions</li>
+<li>Tab one will contain multiple selections to bring up sections of this report</li>
+<li>Tab two will have the search table for historical video game sales</li>
+<li>Tab three will have interactive plots</li>
+<li>Tab four will have our regression results</li>
+<li>Tab five will have the visualizations of average global sales by year and by month</li>
+</ul>
+</div>
+<div id="visualizations" class="section level4">
+<h4>Visualizations</h4>
+<p>Each visualization will be a bar chart of average global sales by either year of release or by month of release.</p>
+</div>
 </div>
 
 
