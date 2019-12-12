@@ -85,7 +85,21 @@ Each visualization will be a bar chart of average global sales by either year of
 
 #### Visualizations
 
-...
+To start off, we made a bar chart with the year on the x-axis, and the average global sales for that year on the y-axis. This is what it looked like.
+
+![Image of bar chart with year and average global sales](yearlysales.png)
+
+Here we can immediatley see an abnormality in our data. From 1980-1990, average global sales spikes up by almost 2 million more than usual. To figure out why this was, we decided to make a scatterplot of each game with the year of release on the x-axis and the global sales on the y-axis. 
+
+![Image of scatterplot with year and global sales](yearlysales_scatter.png)
+
+From this scatterplot, we can see that there were a lot less games sold between 1980-1990 than there were in later years, and most of those games sold more copies than the average game released in later years. This is what caused the huge spike in our bar chart. Even though it looks like there are a lot more games selling more copies around 2010, there are even more games that are not selling very many copies at all, and this brings the average global sales down tremendously. This tells us that when older games were released, they were more popular because there were not as many options. In present day however, with so many games being released, very rarely is it a big selling game. The game with the highest sales in our data set at around 80 million copies sold is Wii Sports, released in 2006.
+
+Next we made a bar chart with month of release on the x-axis, and the global sales on the y-axis.
+
+![Image of bar chart with month and average global sales](monthlysales.png)
+
+Here we can see a few months where the average copies sold increase. These months are February, August, September, and October, with the highest spike between August and October. From this bar chart, it is safe to say that the best month to release a game is sometime around August through October. February is a good month too, but not quite as good as the other months.
 
 #### t-test
 
@@ -93,7 +107,7 @@ Each visualization will be a bar chart of average global sales by either year of
 
 ## Conclusion
 
-...
+While we had the right idea for our regression analysis, our adjusted r squared was really small because our data set was very large, making it hard to predict anything. If we were to continue on this assignment and adjust certain things, instead of using the entire data set given, we could take two samples of our data set, one for training our regression model, and the other for testing it. This would most likely end up giving us a more accurate regression model.
 
 
 
