@@ -66,7 +66,7 @@ Each visualization will be a bar chart of average global sales by either year of
 
 #### t-test
 
-...
+We are interested in the difference in the Global Sales for different consoles. Two of the consoles that we will analyze are all Xbox and Playstation consoles. We want to determine if there is a signifiant differnce in the true mean of global sales for Xbox and Playstation consoles. We plan to check the assumptions for a t-test, and then analyze this question. Our null hypothesis is that there is no significant difference in the true means of global sales for Xbox and Playstation consoles. Our alternative hypothesis is that there is a significant difference in the true means of global sales for Xbox and Playstation consoles.
 
 ## Discussion
 
@@ -94,7 +94,15 @@ Here we can see a few months where the average copies sold increase. These month
 
 #### t-test
 
-...
+The total sample sizes for the two groups, Xbox and Playstation consoles, are as followed: 2333 Xbox observations and 6723 Playstation observations. We are interested in the variable global sales, and whether there is a true mean difference in the means of global sales for these two consoles. First, we will check the assumptions of normality and constant variance.
+
+![Box Plot]()
+
+Looking at the box plots of the distribution we can see that there our multiple outliers for both systems. Since our sample sizes are high for both groups, these outliers may not be influential in the normality of the data. Our sample size is practically the populations of Xbox and Playstation games. Thus, we can assume normality in the data and can continue with the analysis. A F test was run to check the variance of the plots to see if they are equal. The test yeilded an F test statistic of 0.74071, and a p-value of < 2.2e-16. This says that the variances of the two distributions are unequal, so we will continue with a t-test that has unequal variances. 
+
+![Ttest]()
+
+The t-test yields a t test statistic of 2.0591 and a p-value of 0.03956. This is a significant p-value at an alpha = 0.05 level. Thus, there is a significant difference of the means of the global sales for xbox and playstation consoles. The mean global sales of the xbox console (0.5955122) was significantly higher than the mean global sales of the playstation console (0.5337498). We can conclude that the mean global sales of Xbox consoles is significantly higher than the mean global sales for Playstation consoles.
 
 ## Conclusion
 
